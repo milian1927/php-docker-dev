@@ -1,0 +1,55 @@
+services:
+  php:
+    build:
+      context: /php-docker-dev/compose-dockerfiles/php
+      dockerfile: Dockerfile
+    container_name: php
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    volumes:
+      - /php-docker-dev/src:/var/www/html
+      - /php-docker-dev/php/conf.d:/usr/local/etc/php/conf.d
+      - /php-docker-dev/logs/php:/var/log/php
+    networks:
+      - app-network
+    #depends_on:
+    #  - mysql
+    #  - redis
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - /php-docker-dev/nginx/conf.d:/etc/nginx/conf.d
+      - /php-docker-dev/src:/var/www/html
+      - /php-docker-dev/logs/nginx:/var/log/nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - php
+
+  #mysql:
+  #  image: mysql:5.7
+  #  container_name: mysql
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: root
+  #    MYSQL_DATABASE: laravel_db
+  #    MYSQL_USER: laravel_user
+  #    MYSQL_PASSWORD: laravel_password
+  #  volumes:
+  #    - /php-docker-dev/mysql/data:/var/lib/mysql
+  #  networks:
+  #    - app-network
+
+  #redis:
+  #  image: redis:latest
+  #  container_name: redis
+  #  networks:
+  #    - app-network
+
+networks:
+  app-network:
+    driver: bridge
